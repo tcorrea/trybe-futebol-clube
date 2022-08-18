@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import User from '../database/models/User';
-import { Jwt } from './Jwt';
+import Jwt from './Jwt';
 
 export default class Auth {
   static async authenticate(credential: { email: string, password: string }) {
