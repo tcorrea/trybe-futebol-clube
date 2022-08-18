@@ -1,4 +1,7 @@
+import 'express-async-errors';
 import * as express from 'express';
+import authRouter from './routers/authRouter';
+import errorMiddleware from './middlewares/error';
 
 class App {
   public app: express.Express;
@@ -10,9 +13,14 @@ class App {
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
+
+    // Rotas
+    this.app.use('/login', authRouter);
+
+    // middleware error 
+    this.app.use(errorMiddleware);
   }
 
-  //
   private config(): void {
     const accessControl: express.RequestHandler = (_req, res, next) => {
       res.header('Access-Control-Allow-Origin', '*');
@@ -23,6 +31,7 @@ class App {
 
     this.app.use(express.json());
     this.app.use(accessControl);
+
   }
 
   public start(PORT: string | number): void {
