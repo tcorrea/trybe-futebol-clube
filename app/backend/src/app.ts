@@ -16,8 +16,6 @@ class App {
 
     // Rotas
     this.app.use('/login', authRouter);
-
-    // middleware error 
     this.app.use(errorMiddleware);
   }
 
@@ -31,7 +29,6 @@ class App {
 
     this.app.use(express.json());
     this.app.use(accessControl);
-
   }
 
   public start(PORT: string | number): void {
