@@ -63,7 +63,7 @@ describe('Login', () => {
 
     beforeEach(() => {
       const error = new Error('Incorrect email or password');
-      error.name = 'Unauthorized';
+      error.name = 'UNAUTHORIZED';
       sinon.stub(Auth, "authenticate").throws(error);
     });
 

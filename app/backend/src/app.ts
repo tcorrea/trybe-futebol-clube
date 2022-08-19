@@ -13,9 +13,9 @@ class App {
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
-
     // Rotas
     this.app.use('/login', authRouter);
+    // this.app.use('/login', authRouter);
     this.app.use(errorMiddleware);
   }
 
