@@ -7,7 +7,6 @@ import chaiHttp = require('chai-http');
 import { app } from '../app';
 // import User from '../database/models/User';
 import Auth from '../services/Auth';
-import IToken from '../interfaces/IToken';
 // import { Response } from 'superagent';
 
 chai.use(chaiHttp);
@@ -21,10 +20,6 @@ const { expect } = chai;
 //   email: 'any-email',
 //   password: 'any-hash',
 // }
-
-const tokenMock: IToken = {
-  token: 'any-token',
-}
 
 const credentialMock = {
   "email": "user@user.com",
@@ -43,7 +38,7 @@ describe('Login', () => {
   describe('Success', () => {
 
     beforeEach(() => {
-      sinon.stub(Auth, "authenticate").resolves(tokenMock as IToken);
+      sinon.stub(Auth, "authenticate").resolves('any-token');
     });
 
     afterEach(() => {
