@@ -1,6 +1,5 @@
 import { Model, INTEGER, STRING } from 'sequelize';
 import db from '.';
-import Match from './Match';
 
 class Team extends Model {
   public id!: number;
@@ -24,7 +23,5 @@ Team.init({
   modelName: 'teams',
   timestamps: false,
 });
-
-Team.belongsTo(Match, { foreignKey: 'id', as: 'team' });
 
 export default Team;

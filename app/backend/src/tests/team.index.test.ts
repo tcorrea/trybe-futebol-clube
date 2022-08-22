@@ -13,7 +13,7 @@ chai.use(chaiHttp);
 
 const { expect } = chai;
 
-describe('GET | /teams | index', () => {
+describe('Team | index() | GET | /teams', () => {
   describe('Success', () => {
 
     const teamMock = {

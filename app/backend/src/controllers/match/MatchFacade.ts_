@@ -1,0 +1,3 @@
+import MatchControllerIndex from './MatchControllerIndex';
+
+export { MatchControllerIndex };

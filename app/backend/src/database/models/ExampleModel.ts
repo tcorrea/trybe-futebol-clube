@@ -15,11 +15,8 @@ Example.init({
   // modelName: 'example',
   timestamps: false,
 });
-
-/**
-  * `Workaround` para aplicar as associations em TS: 
-  * Associations 1:N devem ficar em uma das instâncias de modelo
-  * */
+// `Workaround` para aplicar as associations em TS:
+// Associations 1:N devem ficar em uma das instâncias de modelo
 
 // OtherModel.belongsTo(Example, { foreignKey: 'campoA', as: 'campoEstrangeiroA' });
 // OtherModel.belongsTo(Example, { foreignKey: 'campoB', as: 'campoEstrangeiroB' });

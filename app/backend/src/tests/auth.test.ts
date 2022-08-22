@@ -39,7 +39,7 @@ const payloadMock = {
 //   "email": "user@user.com",
 // }
 
-describe('POST/Login', () => {
+describe('Auth | authenticate() | POST | /login', () => {
 
   // let chaiHttpResponse: Response;
 
@@ -94,7 +94,7 @@ describe('POST/Login', () => {
 });
 
 
-describe('GET|Login/validate', () => {
+describe('Auth | validate() | GET | /login/validate', () => {
   describe('Success TODO', () => {
 
     beforeEach(() => {
@@ -111,7 +111,6 @@ describe('GET|Login/validate', () => {
         .get('/login/validate')
         .send({ 'Authorization': tokenMock.token });
 
-      console.log(response.body);
       expect(response).to.have.status(200);
     });
 
