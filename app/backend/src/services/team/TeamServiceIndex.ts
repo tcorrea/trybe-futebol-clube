@@ -1,5 +1,5 @@
-import ITeam from "../../interfaces/team/ITeam"
-import Team from "../../database/models/Team"
+import ITeam from '../../interfaces/team/ITeam';
+import Team from '../../database/models/Team';
 
 export default class TeamServiceIndex {
   public static async index(): Promise<ITeam[]> {
