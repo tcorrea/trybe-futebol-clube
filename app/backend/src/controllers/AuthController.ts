@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import service from '../services/Auth';
+import service from '../services/AuthService';
 
-export default class Auth {
+export default class AuthController {
   static async authenticate(req: Request, res: Response) {
     const token: string = await service.authenticate(req.body);
     res.status(200).json({ token });

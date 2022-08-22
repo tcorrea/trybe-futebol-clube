@@ -4,21 +4,19 @@ import Jwt from './Jwt';
 import IAuth from '../interfaces/IAuth';
 import IPayload from '../interfaces/IPayload';
 
-export default class Auth {
+export default class AuthService {
   static async authenticate(credential: IAuth): Promise<string> {
     const userFound = await User.findOne({
-      where: {
-        email: credential.email,
-      },
+      where: { email: credential.email },
     });
-
     const e = new Error('Incorrect email or password');
     e.name = 'UNAUTHORIZED';
-
     if (userFound) {
-      const passwordMatch: boolean = await bcrypt.compare(credential.password, userFound.password);
+      const passwordMatch: boolean = await bcrypt.compare(
+        credential.password,
+        userFound.password,
+      );
       const { id, email, role } = userFound;
-
       if (!passwordMatch) {
         throw e;
       }
@@ -28,10 +26,13 @@ export default class Auth {
   }
 
   static validate(authorization: string | undefined): IPayload {
+    console.log('validate: ', authorization);
     if (authorization) {
       return Jwt.verify(authorization) as IPayload;
     }
     // TODO: criar erro para token invalido
-    throw new Error('Invalid token');
+    const e = new Error('TODO ERROR');
+    e.name = 'BAD_REQUEST';
+    throw e;
   }
 }
