@@ -1,5 +1,6 @@
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
+import TeamService from './TeamService';
 import IMatch from '../interfaces/match/IMatch';
 
 export default class MatchService {
@@ -25,13 +26,19 @@ export default class MatchService {
   }
 
   public static async store(match: IMatch): Promise<IMatch> {
-    if (match.homeTeam === match.awayTeam) {
+    const { homeTeam, awayTeam } = match;
+    if (homeTeam === awayTeam) {
       const e = new Error('It is not possible to create a match with two equal teams');
       e.name = 'UNAUTHORIZED';
       throw e;
     }
-    const storedMatch = await Match.create({ ...match, inProgress: true });
-    return storedMatch;
+    const result = await TeamService.findByArray([homeTeam, awayTeam]);
+    if (result.length < 2) {
+      const notFoundTeamError = new Error('There is no team with such id!');
+      notFoundTeamError.name = 'NOTFOUND';
+      throw notFoundTeamError;
+    }
+    return await Match.create({ ...match, inProgress: true });
   }
 
   public static async updateFinished(id: number): Promise<number> {

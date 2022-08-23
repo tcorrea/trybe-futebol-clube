@@ -13,4 +13,8 @@ export default class TeamServiceIndex {
     // todo: throw error
     return team as ITeam;
   }
+
+  public static async findByArray(ids: number[]): Promise<ITeam[]> {
+    return await Team.findAll({ where: { id: ids } });
+  }
 }
