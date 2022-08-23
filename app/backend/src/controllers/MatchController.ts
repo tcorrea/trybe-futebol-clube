@@ -24,7 +24,7 @@ export default class MatchController {
     const { id } = req.params;
     const affectedRows = await MatchService.updateFinished(Number(id));
     if (affectedRows) {
-      res.status(StatusCodes.OK).json({ "message": "Finished" });
+      res.status(StatusCodes.OK).json({ message: 'Finished' });
     }
   }
 }

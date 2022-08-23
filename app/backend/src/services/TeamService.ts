@@ -15,6 +15,7 @@ export default class TeamServiceIndex {
   }
 
   public static async findByArray(ids: number[]): Promise<ITeam[]> {
-    return await Team.findAll({ where: { id: ids } });
+    const teams = await Team.findAll({ where: { id: ids } });
+    return teams;
   }
 }

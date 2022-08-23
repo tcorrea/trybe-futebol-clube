@@ -38,12 +38,13 @@ export default class MatchService {
       notFoundTeamError.name = 'NOTFOUND';
       throw notFoundTeamError;
     }
-    return await Match.create({ ...match, inProgress: true });
+    const storedMatch = await Match.create({ ...match, inProgress: true });
+    return storedMatch;
   }
 
   public static async updateFinished(id: number): Promise<number> {
     const [affectedRows] = await Match.update({ inProgress: false }, {
-      where: { id: id }
+      where: { id },
     });
     return affectedRows;
   }
