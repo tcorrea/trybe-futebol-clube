@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { TeamControllerShow, TeamControllerIndex } from '../controllers/team/TeamFacade';
+import TeamController from '../controllers/TeamController';
 
 const router = Router();
 
-router.get('/', (req, res) => TeamControllerIndex.index(req, res));
-router.get('/:id', (req, res) => TeamControllerShow.show(req, res));
+router.get('/', (req, res) => TeamController.index(req, res));
+router.get('/:id', (req, res) => TeamController.show(req, res));
 
 export default router;

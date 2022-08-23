@@ -7,6 +7,12 @@ export default class Jwt {
   }
 
   static verify(token: string) {
-    return verify(token, process.env.JWT_SECRET || 'secret');
+    try {
+      return verify(token, process.env.JWT_SECRET || 'secret');
+    } catch (e) {
+      const error = new Error('Expired or invalid token');
+      error.name = 'UNAUTHORIZED';
+      throw error;
+    }
   }
 }

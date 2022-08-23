@@ -1,6 +1,10 @@
-import IMatch from './IMatch';
-
-export default interface IDisplayMatch extends IMatch {
-  teamHome: { teamName: string },
-  teamAway: { teamName: string },
+export default interface IDisplayMatch {
+  id: number,
+  homeTeam: number,
+  homeTeamGoals: number,
+  awayTeam: number,
+  awayTeamGoals: number,
+  inProgress: boolean,
+  teamHome: { id: number, teamName: string },
+  teamAway: { id: number, teamName: string },
 }
