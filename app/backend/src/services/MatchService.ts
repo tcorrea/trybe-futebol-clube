@@ -25,6 +25,11 @@ export default class MatchService {
   }
 
   public static async store(match: IMatch): Promise<IMatch> {
+    if (match.homeTeam === match.awayTeam) {
+      const e = new Error('It is not possible to create a match with two equal teams');
+      e.name = 'UNAUTHORIZED';
+      throw e;
+    }
     const storedMatch = await Match.create({ ...match, inProgress: true });
     return storedMatch;
   }
