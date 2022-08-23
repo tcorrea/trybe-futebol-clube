@@ -19,4 +19,12 @@ export default class MatchController {
     const match: IMatch = await MatchService.store(req.body);
     res.status(StatusCodes.CREATED).json(match);
   }
+
+  public static async updateFinished(req: Request, res: Response) {
+    const { id } = req.params;
+    const affectedRows = await MatchService.updateFinished(Number(id));
+    if (affectedRows) {
+      res.status(StatusCodes.OK).json({ "message": "Finished" });
+    }
+  }
 }

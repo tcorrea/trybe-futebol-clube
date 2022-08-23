@@ -28,4 +28,11 @@ export default class MatchService {
     const storedMatch = await Match.create({ ...match, inProgress: true });
     return storedMatch;
   }
+
+  public static async updateFinished(id: number): Promise<number> {
+    const [affectedRows] = await Match.update({ inProgress: false }, {
+      where: { id: id }
+    });
+    return affectedRows;
+  }
 }

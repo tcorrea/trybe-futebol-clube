@@ -10,7 +10,7 @@ export default class Jwt {
     try {
       return verify(token, process.env.JWT_SECRET || 'secret');
     } catch (e) {
-      const error = new Error('Expired or invalid token');
+      const error = new Error('Token must be a valid token');
       error.name = 'UNAUTHORIZED';
       throw error;
     }
