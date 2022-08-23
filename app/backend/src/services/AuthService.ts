@@ -26,7 +26,6 @@ export default class AuthService {
   }
 
   static validate(authorization: string | undefined): IPayload {
-    console.log('validate: ', authorization);
     if (authorization) {
       return Jwt.verify(authorization) as IPayload;
     }

@@ -20,6 +20,14 @@ export default class MatchController {
     res.status(StatusCodes.CREATED).json(match);
   }
 
+  public static async update(req: Request, res: Response) {
+    const { id } = req.params;
+    const affectedRows = await MatchService.update(req.body, Number(id));
+    if (affectedRows) {
+      res.status(StatusCodes.OK).json({ ok: true });
+    }
+  }
+
   public static async updateFinished(req: Request, res: Response) {
     const { id } = req.params;
     const affectedRows = await MatchService.updateFinished(Number(id));

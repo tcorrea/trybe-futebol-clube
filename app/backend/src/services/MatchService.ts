@@ -42,6 +42,14 @@ export default class MatchService {
     return storedMatch;
   }
 
+  public static async update(score: IMatch, id: number): Promise<number> {
+    const { homeTeamGoals, awayTeamGoals } = score;
+    const [effectedRows] = await Match.update({ homeTeamGoals, awayTeamGoals }, {
+      where: { id },
+    });
+    return effectedRows;
+  }
+
   public static async updateFinished(id: number): Promise<number> {
     const [affectedRows] = await Match.update({ inProgress: false }, {
       where: { id },
