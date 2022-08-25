@@ -4,7 +4,7 @@ import LeaderboardService from '../services/LeaderboardService';
 
 export default class LeaderboardController {
   public static async home(_req: Request, res: Response) {
-    const leaderboard = await LeaderboardService.home();
+    const leaderboard = await LeaderboardService.homeSequelize();
     res.status(StatusCodes.OK).json(leaderboard);
   }
 }

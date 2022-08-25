@@ -1,7 +1,7 @@
 export default interface ILeaderboard {
   name: string,
   totalPoints: number,
-  totalGames: number,
+  totalGames: number | undefined,
   totalVictories: number,
   totalDraws: number,
   totalLosses: number,

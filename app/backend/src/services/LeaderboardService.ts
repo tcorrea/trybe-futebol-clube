@@ -1,183 +1,67 @@
-import TeamService from './TeamService';
-import MatchService from './MatchService';
-import IMatch from '../interfaces/match/IMatch';
+import Match from '../database/models/Match';
+import Team from '../database/models/Team';
 import ILeaderboard from '../interfaces/ILeaderboard';
+import ITeam from '../interfaces/team/ITeam';
+import IMatch from '../interfaces/match/IMatch';
 
 export default class LeaderboardService {
+  public static async homeSequelize(): Promise<ILeaderboard[]> {
+    const homeMatches = await LeaderboardService.getTeamHomeOrAway('homeMatch');
 
-  public static async home(): Promise<ILeaderboard[]> {
-
-    // Buscar todos os times - array
-    const teams = await TeamService.index();
-
-
-    // Buscar todas as partidas
-    const matches = await MatchService.index();
-
-    // Partidas finalizadas
-    const finishedMatches = matches.filter((match) => match.inProgress === false);
-
-    const leaderboardWip = teams.map((team) => {
-      // const playedMatches: IMatch[] = finishedMatches.filter((match) => match.homeTeam === team.id || match.awayTeam === team.id);
-      const playedMatches: IMatch[] = finishedMatches.filter((match) => match.homeTeam === team.id);
-      const totalGames: number = playedMatches.length;
-
-      // let leaderboardHome: ILeaderboard = { goalsBalance: 0 };
-      // leaderboardHome.goalsBalance = 0;
-
-      const victories = playedMatches.filter((match) => {
-        return (match.homeTeam === team.id && match.homeTeamGoals > match.awayTeamGoals) ||
-          (match.awayTeam === team.id && match.homeTeamGoals < match.awayTeamGoals)
-      });
-      const losses = playedMatches.filter((match) => {
-        return (match.homeTeam === team.id && match.homeTeamGoals < match.awayTeamGoals) ||
-          (match.awayTeam === team.id && match.homeTeamGoals > match.awayTeamGoals)
-      });
-
-      const draws = totalGames - (victories.length + losses.length)
-
-      const totalPoints = (victories.length * 3) + draws;
-
-      const goalsFavor = playedMatches.reduce<number>((acc, currMatch) => {
-        if (currMatch.homeTeam === team.id) return acc + currMatch.homeTeamGoals;
-        if (currMatch.awayTeam === team.id) return acc + currMatch.awayTeamGoals;
-        return acc;
-      }, 0);
-
-      const goalsOwn = playedMatches.reduce<number>((acc, currMatch) => {
-        if (currMatch.homeTeam === team.id) return acc + currMatch.awayTeamGoals;
-        if (currMatch.awayTeam === team.id) return acc + currMatch.homeTeamGoals;
-        return acc;
-      }, 0);
-
-      const goalsBalance = goalsFavor - goalsOwn;
-      const efficiency = totalPoints / (totalGames * 3) * 100;
-
-
-      return {
-        name: team.teamName,
-        totalPoints,
-        totalGames,
-        totalVictories: victories.length,
-        totalDraws: draws,
-        totalLosses: losses.length,
-        goalsFavor,
-        goalsOwn,
-        goalsBalance,
-        efficiency: efficiency.toFixed(2),
-      };
-
+    const leaderboardHome = homeMatches.map<ILeaderboard>((item) => {
+      if (!item.homeMatch) throw new Error('Nenhum partida encontrada');
+      return LeaderboardService.getLeaderboard(item.homeMatch, item.teamName);
     });
+    return LeaderboardService.sortLeaderBoard(leaderboardHome);
+  }
 
-    const sortedLeaderboard = leaderboardWip.sort((a, b) => {
+  private static getLeaderboard(matches: IMatch[], teamName: string) {
+    const totalGames = matches.length;
+    const teamResults = LeaderboardService.getTeamResults(matches);
+    const goalsFavor = matches.map((i) => i.homeTeamGoals).reduce((acc, n) => acc + n, 0);
+    const goalsOwn = matches.map((i) => i.awayTeamGoals).reduce((acc, n) => acc + n, 0);
+    const efficiency = (teamResults.victories * 3) + teamResults.draws;
+    return {
+      name: teamName,
+      totalPoints: (teamResults.victories * 3) + teamResults.draws,
+      totalGames,
+      totalVictories: teamResults.victories,
+      totalDraws: teamResults.draws,
+      totalLosses: teamResults.losses,
+      goalsFavor,
+      goalsOwn,
+      goalsBalance: goalsFavor - goalsOwn,
+      efficiency: ((efficiency / (totalGames * 3)) * 100).toFixed(2),
+    };
+  }
+
+  private static getTeamResults(matches: IMatch[]) {
+    const victories = matches.reduce((acc, i) => {
+      if (i.homeTeamGoals > i.awayTeamGoals) return acc + 1;
+      return acc;
+    }, 0);
+    const losses = matches.reduce((acc, i) => {
+      if (i.homeTeamGoals < i.awayTeamGoals) return acc + 1;
+      return acc;
+    }, 0);
+    return { victories, losses, draws: matches.length - (victories + losses) };
+  }
+
+  private static async getTeamHomeOrAway(homeOrAway: 'homeMatch' | 'awayMatch'): Promise<ITeam[]> {
+    const result = await Team.findAll({
+      attributes: { exclude: ['id'] },
+      include: [{ model: Match, as: homeOrAway, where: { inProgress: false } }],
+    });
+    return result;
+  }
+
+  private static sortLeaderBoard(leaderboard: ILeaderboard[]): ILeaderboard[] {
+    return leaderboard.sort((a, b) => {
       if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
       if (b.totalVictories !== a.totalVictories) return b.totalVictories - a.totalVictories;
       if (b.goalsBalance !== a.goalsBalance) return b.goalsBalance - a.goalsBalance;
       if (b.goalsFavor !== a.goalsFavor) return b.goalsFavor - a.goalsFavor;
       return a.goalsOwn - b.goalsOwn;
     });
-
-    return sortedLeaderboard;
   }
-
-  // private static getVictories(matches: IMatch[], teamId: number): number {
-  //   const victories = matches.filter((match) => {
-  //     return (match.homeTeam === teamId && match.homeTeamGoals > match.awayTeamGoals) ||
-  //       (match.awayTeam === teamId && match.homeTeamGoals < match.awayTeamGoals)
-  //   });
-  //   return victories.length;
-  // }
-
-  // private static getLosses(matches: IMatch[], teamId: number): number {
-  //   const losses = matches.filter((match) => {
-  //     return (match.homeTeam === teamId && match.homeTeamGoals < match.awayTeamGoals) ||
-  //       (match.awayTeam === teamId && match.homeTeamGoals > match.awayTeamGoals)
-  //   });
-  //   return losses.length;
-  // }
-
-  // public static async index(): Promise<ILeaderboard[]> {
-  //   // Buscar todos os times - array
-  //   const teams = await TeamService.index();
-
-
-  //   // Buscar todas as partidas
-  //   const matches = await MatchService.index();
-
-  //   // Partidas finalizadas
-  //   const finishedMatches = matches.filter((match) => match.inProgress === false);
-
-  //   // Map ou reduce? Provavel reduce
-  //   const leaderboardWip = teams.map((team) => {
-  //     const playedMatches: IMatch[] = finishedMatches.filter((match) => match.homeTeam === team.id || match.awayTeam === team.id);
-  //     const totalGames: number = playedMatches.length;
-
-  //     const victories = playedMatches.filter((match) => {
-  //       return (match.homeTeam === team.id && match.homeTeamGoals > match.awayTeamGoals) ||
-  //         (match.awayTeam === team.id && match.homeTeamGoals < match.awayTeamGoals)
-  //     });
-  //     const losses = playedMatches.filter((match) => {
-  //       return (match.homeTeam === team.id && match.homeTeamGoals < match.awayTeamGoals) ||
-  //         (match.awayTeam === team.id && match.homeTeamGoals > match.awayTeamGoals)
-  //     });
-
-  //     const draws = totalGames - (victories.length + losses.length)
-
-  //     const totalPoints = (victories.length * 3) + draws;
-
-  //     const goalsFavor = playedMatches.reduce<number>((acc, currMatch) => {
-  //       if (currMatch.homeTeam === team.id) return acc + currMatch.homeTeamGoals;
-  //       if (currMatch.awayTeam === team.id) return acc + currMatch.awayTeamGoals;
-  //       return acc;
-  //     }, 0);
-
-  //     const goalsOwn = playedMatches.reduce<number>((acc, currMatch) => {
-  //       if (currMatch.homeTeam === team.id) return acc + currMatch.awayTeamGoals;
-  //       if (currMatch.awayTeam === team.id) return acc + currMatch.homeTeamGoals;
-  //       return acc;
-  //     }, 0);
-
-  //     const goalsBalance = goalsFavor - goalsOwn;
-  //     const efficiency = totalPoints / (totalGames * 3) * 100;
-
-
-  //     return {
-  //       name: team.teamName,
-  //       totalPoints,
-  //       totalGames,
-  //       totalVictories: victories.length,
-  //       totalDraws: draws,
-  //       totalLosses: losses.length,
-  //       goalsFavor,
-  //       goalsOwn,
-  //       goalsBalance,
-  //       efficiency: efficiency.toFixed(2),
-  //     };
-
-  //     // console.log('team', team.teamName);
-  //     // console.log('total games', totalGames);
-  //     // console.log('total points', totalPoints);
-  //     // console.log('vitories', victories.length);
-  //     // console.log('losses', losses.length);
-  //     // console.log('draws', draws);
-  //     // console.log('goalsFavor ', goalsFavor);
-  //     // console.log('goalsOwn ', goalsOwn);
-  //     // console.log('goalsBalance ', goalsBalance);
-  //     // console.log('efficiency ', efficiency);
-  //   });
-
-  //   const sortedLeaderboard = leaderboardWip.sort((a, b) => {
-  //     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-  //     if (b.totalVictories !== a.totalVictories) return b.totalVictories - a.totalVictories;
-  //     if (b.goalsBalance !== a.goalsBalance) return b.goalsBalance - a.goalsBalance;
-  //     if (b.goalsFavor !== a.goalsFavor) return b.goalsFavor - a.goalsFavor;
-  //     return a.goalsOwn - b.goalsOwn;
-  //   });
-
-  //   console.log(sortedLeaderboard);
-  //   console.log(sortedLeaderboard.length);
-
-  //   return sortedLeaderboard;
-
-  // }
 }
